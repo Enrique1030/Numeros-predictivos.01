@@ -49,11 +49,15 @@ export const generateAnalysis = async (
     - Prints claros de las 5 predicciones con el formato "N1 - N2 - N3..." y sus stats (Suma, Pares, Impares).
   `;
 
+  // Provide a larger context window since Gemini 3 Pro can handle it
+  // Truncate to 100,000 chars to ensure we fit within reasonable limits but give plenty of data for charts
+  const truncatedData = dataSnippet.length > 100000 ? dataSnippet.substring(0, 100000) + "...(truncado)" : dataSnippet;
+
   const prompt = `
     Nombre del archivo: ${fileName}
     
-    Snippet de los datos (primeras filas):
-    ${dataSnippet.substring(0, 3000)}...
+    Snippet de los datos:
+    ${truncatedData}
 
     Objetivo del usuario: ${userGoal}
 
@@ -75,7 +79,8 @@ export const generateAnalysis = async (
          - 'odds': Cantidad de números impares (Number).
        - OTROS CASOS: 'label' es la variable, 'value' el valor.
     4. "chartData": Array para visualizar. 
-       - Sorteos: Grafica la frecuencia de los números más repetidos o la suma histórica.
+       - IMPORTANTE: Genera AL MENOS 50-100 puntos de datos históricos reales (extraídos del snippet) para que el gráfico sea denso y útil.
+       - Sorteos: Grafica la suma de los números de cada sorteo histórico (eje Y) vs el índice/fecha (eje X) para ver la volatilidad.
     5. "recommendations": Lista de 3 recomendaciones basadas en los datos.
   `;
 
@@ -146,7 +151,6 @@ export const generateAnalysis = async (
         systemInstruction: systemInstruction,
         responseMimeType: "application/json",
         responseSchema: responseSchema,
-        // thinkingConfig removed as it is not supported on gemini-3-pro-preview
       },
     });
 

@@ -9,6 +9,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  Brush,
 } from 'recharts';
 import { CheckCircle2, TrendingUp, AlertCircle, Calculator, Hash, Divide, Activity, Info } from 'lucide-react';
 
@@ -90,37 +91,48 @@ const AnalysisDashboard: React.FC<Props> = ({ result }) => {
       {/* Main Chart */}
       <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg">
         <h3 className="text-lg font-semibold text-white mb-6">Proyección Histórica y Tendencias</h3>
-        <div className="h-[350px] w-full">
+        <div className="h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={result.chartData}>
+            <LineChart data={result.chartData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-              <XAxis dataKey="name" stroke="#94a3b8" />
-              <YAxis stroke="#94a3b8" />
+              <XAxis dataKey="name" stroke="#94a3b8" tick={{fontSize: 12}} />
+              <YAxis stroke="#94a3b8" tick={{fontSize: 12}} />
               <Tooltip 
                 contentStyle={{ backgroundColor: '#1e293b', borderColor: '#475569', color: '#f1f5f9' }}
                 itemStyle={{ color: '#e2e8f0' }}
               />
-              <Legend />
+              <Legend verticalAlign="top" height={36}/>
               <Line 
                 type="monotone" 
                 dataKey="historical" 
                 name="Datos Históricos" 
                 stroke="#3b82f6" 
-                strokeWidth={3} 
-                dot={{ r: 4 }} 
+                strokeWidth={2} 
+                dot={result.chartData.length > 50 ? false : { r: 3 }} 
+                activeDot={{ r: 6 }}
               />
               <Line 
                 type="monotone" 
                 dataKey="prediction" 
                 name="Tendencia IA" 
                 stroke="#10b981" 
-                strokeWidth={3} 
+                strokeWidth={2} 
                 strokeDasharray="5 5" 
                 dot={{ r: 4 }} 
+              />
+              <Brush 
+                dataKey="name" 
+                height={30} 
+                stroke="#475569" 
+                fill="#1e293b"
+                tickFormatter={() => ''}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
+        <p className="text-xs text-slate-500 mt-2 text-center italic">
+          Usa el deslizador inferior en el gráfico para hacer zoom en períodos específicos.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
